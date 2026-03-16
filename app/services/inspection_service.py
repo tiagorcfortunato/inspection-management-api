@@ -1,0 +1,126 @@
+from sqlalchemy import asc, desc
+from sqlalchemy.orm import Session
+
+from app.core.enums import DamageType, SeverityLevel, InspectionStatus, SortOrder
+from app.models.inspection import Inspection
+from app.models.user import User
+from app.schemas.inspection import InspectionCreate, InspectionUpdate
+
+
+def get_inspections(
+    db: Session,
+    current_user: User,
+    severity: SeverityLevel | None = None,
+    status: InspectionStatus | None = None,
+    damage_type: DamageType | None = None,
+    limit: int = 10,
+    offset: int = 0,
+    sort_by: str = "reported_at",
+    order: SortOrder = SortOrder.desc,
+):
+    query = db.query(Inspection).filter(Inspection.user_id == current_user.id)
+
+    if severity is not None:
+        query = query.filter(Inspection.severity == severity.value)
+
+    if status is not None:
+        query = query.filter(Inspection.status == status.value)
+
+    if damage_type is not None:
+        query = query.filter(Inspection.damage_type == damage_type.value)
+
+    total = query.count()
+
+    allowed_sort_fields = {
+        "id": Inspection.id,
+        "reported_at": Inspection.reported_at,
+        "severity": Inspection.severity,
+        "status": Inspection.status,
+        "damage_type": Inspection.damage_type,
+        "location_code": Inspection.location_code,
+    }
+
+    sort_column = allowed_sort_fields.get(sort_by, Inspection.reported_at)
+
+    if order == SortOrder.asc:
+        query = query.order_by(asc(sort_column))
+    else:
+        query = query.order_by(desc(sort_column))
+
+    inspections = query.limit(limit).offset(offset).all()
+
+    return {
+        "total": total,
+        "items": inspections,
+    }
+
+
+def get_inspection_by_id(inspection_id: int, db: Session, current_user: User):
+    return (
+        db.query(Inspection)
+        .filter(
+            Inspection.id == inspection_id,
+            Inspection.user_id == current_user.id,
+        )
+        .first()
+    )
+
+
+def create_inspection(
+    inspection_data: InspectionCreate,
+    db: Session,
+    current_user: User,
+):
+    db_inspection = Inspection(
+        location_code=inspection_data.location_code,
+        damage_type=inspection_data.damage_type.value,
+        severity=inspection_data.severity.value,
+        status=inspection_data.status.value,
+        notes=inspection_data.notes,
+        user_id=current_user.id,
+    )
+
+    db.add(db_inspection)
+    db.commit()
+    db.refresh(db_inspection)
+
+    return db_inspection
+
+
+def update_inspection(
+    inspection_id: int,
+    inspection_data: InspectionUpdate,
+    db: Session,
+    current_user: User,
+):
+    inspection = (
+        db.query(Inspection)
+        .filter(
+            Inspection.id == inspection_id,
+            Inspection.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if inspection is None:
+        return None
+
+    if inspection_data.location_code is not None:
+        inspection.location_code = inspection_data.location_code
+
+    if inspection_data.damage_type is not None:
+        inspection.damage_type = inspection_data.damage_type.value
+
+    if inspection_data.severity is not None:
+        inspection.severity = inspection_data.severity.value
+
+    if inspection_data.status is not None:
+        inspection.status = inspection_data.status.value
+
+    if inspection_data.notes is not None:
+        inspection.notes = inspection_data.notes
+
+    db.commit()
+    db.refresh(inspection)
+
+    return inspection

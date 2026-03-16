@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.database import engine
-from app.routers import tasks, auth
+from app.routers import auth, inspections
 
 
 app = FastAPI()
 
 app.include_router(auth.router)
-app.include_router(tasks.router)
+app.include_router(inspections.router)
 
 
 @app.get("/")
