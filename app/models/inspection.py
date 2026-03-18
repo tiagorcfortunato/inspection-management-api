@@ -19,6 +19,8 @@ class Inspection(Base):
     notes = Column(String, nullable=True)
 
     reported_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
