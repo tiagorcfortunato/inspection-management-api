@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 
+from app.database import Base, engine
+from app.models import user, inspection
 from app.routers import auth, inspections
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Inspection Management API",
@@ -8,9 +12,3 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-app.include_router(inspections.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Inspection Management API is running"}
