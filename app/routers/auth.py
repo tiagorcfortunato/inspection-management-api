@@ -14,7 +14,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     user = register_user(user_data, db)
 
     if user is None:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
 
     return {"message": "User created successfully"}
 
@@ -24,9 +27,16 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    result = login_user(form_data.username, form_data.password, db)
+    result = login_user(
+        form_data.username,
+        form_data.password,
+        db
+    )
 
     if result is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
 
     return result
