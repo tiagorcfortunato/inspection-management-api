@@ -14,7 +14,6 @@ venv.bak/
 
 # Environment files
 .env
-.env.*
 .envrc
 
 # Test and coverage
