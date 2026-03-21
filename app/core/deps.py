@@ -5,7 +5,7 @@ from jose import JWTError, jwt
 
 from app.database import SessionLocal
 from app.models.user import User
-from app.core.security import SECRET_KEY, ALGORITHM
+from app.core.config import settings
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -29,7 +29,7 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get("sub")
 
         if user_id is None:

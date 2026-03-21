@@ -1,7 +1,4 @@
-version: "3.9"
-
 services:
-
   db:
     image: postgres:15
     container_name: task_db
@@ -11,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: taskdb
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
