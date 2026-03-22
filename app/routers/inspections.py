@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, get_current_user
@@ -20,8 +20,8 @@ def get_inspections(
     severity: SeverityLevel | None = None,
     status: InspectionStatus | None = None,
     damage_type: DamageType | None = None,
-    limit: int = 10,
-    offset: int = 0,
+    limit: int = Query(default=10, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
     sort_by: str = "reported_at",
     order: SortOrder = SortOrder.desc,
     db: Session = Depends(get_db),
@@ -58,7 +58,11 @@ def get_inspection(
     return inspection
 
 
-@router.post("/inspections", response_model=InspectionResponse)
+@router.post(
+    "/inspections",
+    response_model=InspectionResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_inspection(
     inspection: InspectionCreate,
     db: Session = Depends(get_db),
@@ -91,7 +95,7 @@ def update_inspection(
     return updated_inspection
 
 
-@router.delete("/inspections/{inspection_id}")
+@router.delete("/inspections/{inspection_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_inspection(
     inspection_id: int,
     db: Session = Depends(get_db),
@@ -108,5 +112,3 @@ def delete_inspection(
 
     db.delete(inspection)
     db.commit()
-
-    return {"message": "Inspection deleted"}
