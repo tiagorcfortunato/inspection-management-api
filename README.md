@@ -11,7 +11,7 @@ Built to demonstrate a clean, production-oriented backend architecture using Fas
 - **PostgreSQL** — database
 - **Alembic** — database migrations
 - **Docker** — containerised execution
-- **Pytest** — 22 automated tests covering auth, CRUD, filtering, pagination, sorting, and validation
+- **Pytest** — 31 automated tests covering auth, CRUD, filtering, pagination, sorting, validation, and admin access control
 
 ## Features
 
