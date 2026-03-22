@@ -100,12 +100,63 @@ def get_all_inspections(
     else:
         query = query.order_by(desc(sort_column))
 
-    inspections = query.limit(limit).offset(offset).all()
+    raw = query.limit(limit).offset(offset).all()
+
+    items = [
+        {
+            "id": insp.id,
+            "location_code": insp.location_code,
+            "damage_type": insp.damage_type,
+            "severity": insp.severity,
+            "status": insp.status,
+            "notes": insp.notes,
+            "reported_at": insp.reported_at,
+            "user_id": insp.user_id,
+            "user_email": insp.owner.email if insp.owner else "unknown",
+        }
+        for insp in raw
+    ]
 
     return {
         "total": total,
-        "items": inspections,
+        "items": items,
     }
+
+
+def admin_update_inspection(
+    inspection_id: int,
+    inspection_data: InspectionUpdate,
+    db: Session,
+):
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+
+    if inspection is None:
+        return None
+
+    if inspection_data.location_code is not None:
+        inspection.location_code = inspection_data.location_code
+
+    if inspection_data.damage_type is not None:
+        inspection.damage_type = inspection_data.damage_type.value
+
+    if inspection_data.severity is not None:
+        inspection.severity = inspection_data.severity.value
+
+    if inspection_data.status is not None:
+        inspection.status = inspection_data.status.value
+
+    if inspection_data.notes is not None:
+        inspection.notes = inspection_data.notes
+
+    db.commit()
+    db.refresh(inspection)
+
+    return inspection
+
+
+def admin_delete_inspection(inspection_id: int, db: Session):
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    return inspection
 
 
 def get_inspection_by_id(inspection_id: int, db: Session, current_user: User):

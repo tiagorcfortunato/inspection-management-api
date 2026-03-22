@@ -37,3 +37,23 @@ class InspectionResponse(InspectionBase):
 class InspectionListResponse(BaseModel):
     total: int
     items: list[InspectionResponse]
+
+
+class InspectionAdminResponse(BaseModel):
+    id: int
+    location_code: str
+    damage_type: DamageType
+    severity: SeverityLevel
+    status: InspectionStatus
+    notes: str | None
+    reported_at: datetime
+    user_id: int
+    user_email: str
+
+    class Config:
+        from_attributes = True
+
+
+class InspectionAdminListResponse(BaseModel):
+    total: int
+    items: list[InspectionAdminResponse]
