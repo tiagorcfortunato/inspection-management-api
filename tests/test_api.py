@@ -61,7 +61,7 @@ def test_register_login_and_create_inspection():
         json=inspection_payload(),
         headers=headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     data = response.json()
     assert data["location_code"] == "A9-KM-143"
@@ -109,7 +109,7 @@ def test_user_cannot_see_another_users_inspections():
         json=inspection_payload(location_code="B2-KM-010"),
         headers=headers1,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     inspection_id = response.json()["id"]
 
@@ -168,7 +168,7 @@ def test_update_inspection():
         json=inspection_payload(),
         headers=headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     inspection_id = response.json()["id"]
 
@@ -214,7 +214,7 @@ def test_delete_inspection():
         json=inspection_payload(location_code="C5-KM-200"),
         headers=headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     inspection_id = response.json()["id"]
 
@@ -222,7 +222,7 @@ def test_delete_inspection():
         f"/inspections/{inspection_id}",
         headers=headers,
     )
-    assert response.status_code == 200
+    assert response.status_code == 204
 
     response = client.get(f"/inspections/{inspection_id}", headers=headers)
     assert response.status_code == 404
