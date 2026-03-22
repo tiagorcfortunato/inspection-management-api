@@ -9,15 +9,11 @@ class InspectionBase(BaseModel):
     location_code: str
     damage_type: DamageType
     severity: SeverityLevel
-    status: InspectionStatus
     notes: str | None = None
 
 
-class InspectionCreate(BaseModel):
-    location_code: str
-    damage_type: DamageType
-    severity: SeverityLevel
-    notes: str | None = None
+class InspectionCreate(InspectionBase):
+    pass
 
 
 class InspectionUpdate(BaseModel):
@@ -30,6 +26,7 @@ class InspectionUpdate(BaseModel):
 
 class InspectionResponse(InspectionBase):
     id: int
+    status: InspectionStatus
     reported_at: datetime
     user_id: int
 
