@@ -10,5 +10,6 @@ router = APIRouter(prefix="/users", tags=["users"])
 def get_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
-        "email": current_user.email
+        "email": current_user.email,
+        "role": current_user.role,
     }

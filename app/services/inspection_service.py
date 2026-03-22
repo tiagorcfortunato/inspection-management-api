@@ -61,6 +61,53 @@ def get_inspections(
     }
 
 
+def get_all_inspections(
+    db: Session,
+    severity: SeverityLevel | None = None,
+    status: InspectionStatus | None = None,
+    damage_type: DamageType | None = None,
+    limit: int = 10,
+    offset: int = 0,
+    sort_by: InspectionSortField = InspectionSortField.reported_at,
+    order: SortOrder = SortOrder.desc,
+):
+    query = db.query(Inspection)
+
+    if severity is not None:
+        query = query.filter(Inspection.severity == severity.value)
+
+    if status is not None:
+        query = query.filter(Inspection.status == status.value)
+
+    if damage_type is not None:
+        query = query.filter(Inspection.damage_type == damage_type.value)
+
+    total = query.count()
+
+    allowed_sort_fields = {
+        "id": Inspection.id,
+        "reported_at": Inspection.reported_at,
+        "severity": Inspection.severity,
+        "status": Inspection.status,
+        "damage_type": Inspection.damage_type,
+        "location_code": Inspection.location_code,
+    }
+
+    sort_column = allowed_sort_fields[sort_by.value]
+
+    if order == SortOrder.asc:
+        query = query.order_by(asc(sort_column))
+    else:
+        query = query.order_by(desc(sort_column))
+
+    inspections = query.limit(limit).offset(offset).all()
+
+    return {
+        "total": total,
+        "items": inspections,
+    }
+
+
 def get_inspection_by_id(inspection_id: int, db: Session, current_user: User):
     return (
         db.query(Inspection)

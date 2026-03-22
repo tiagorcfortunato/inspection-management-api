@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 
 from app.database import Base, engine
 from app.models import user, inspection
-from app.routers import auth, inspections, users
+from app.routers import auth, inspections, users, admin
 
 
 app = FastAPI(
@@ -30,3 +30,4 @@ def health_check():
 app.include_router(auth.router)
 app.include_router(inspections.router)
 app.include_router(users.router)
+app.include_router(admin.router)
