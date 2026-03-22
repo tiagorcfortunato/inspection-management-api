@@ -18,7 +18,7 @@ from app.schemas.inspection import (
 )
 from app.services import inspection_service
 
-router = APIRouter()
+router = APIRouter(tags=["inspections"])
 
 
 @router.get("/inspections", response_model=InspectionListResponse)
