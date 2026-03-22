@@ -7,12 +7,30 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.database import SessionLocal
+from app.models.user import User
 
 client = TestClient(app)
 
 
 def unique_email():
     return f"{uuid.uuid4().hex[:8]}@example.com"
+
+
+def register_and_login_as_admin(email: str = None, password: str = "test123") -> dict:
+    if email is None:
+        email = unique_email()
+    client.post("/auth/register", json={"email": email, "password": password})
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == email).first()
+        user.role = "admin"
+        db.commit()
+    finally:
+        db.close()
+    response = client.post("/auth/login", data={"username": email, "password": password})
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
 def register_and_login(email: str = None, password: str = "test123") -> dict:
@@ -293,3 +311,107 @@ def test_sort_by_severity_desc():
     assert response.status_code == 200
     severities = [item["severity"] for item in response.json()["items"]]
     assert severities == sorted(severities, reverse=True)
+
+
+# --- Admin ---
+
+def test_regular_user_cannot_access_admin_endpoint():
+    headers = register_and_login()
+    response = client.get("/admin/inspections", headers=headers)
+    assert response.status_code == 403
+
+
+def test_unauthenticated_cannot_access_admin_endpoint():
+    response = client.get("/admin/inspections")
+    assert response.status_code == 401
+
+
+def test_admin_can_list_all_inspections():
+    user_headers = register_and_login()
+    admin_headers = register_and_login_as_admin()
+
+    client.post("/inspections", json=inspection_payload(location_code="ADM-001"), headers=user_headers)
+
+    response = client.get("/admin/inspections", headers=admin_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] >= 1
+    assert len(data["items"]) >= 1
+
+
+def test_admin_response_includes_user_email():
+    user_headers = register_and_login()
+    admin_headers = register_and_login_as_admin()
+
+    client.post("/inspections", json=inspection_payload(location_code="ADM-002"), headers=user_headers)
+
+    response = client.get("/admin/inspections", headers=admin_headers)
+    assert response.status_code == 200
+    items = response.json()["items"]
+    assert all("user_email" in item for item in items)
+
+
+def test_admin_can_see_inspections_from_multiple_users():
+    headers1 = register_and_login()
+    headers2 = register_and_login()
+    admin_headers = register_and_login_as_admin()
+
+    client.post("/inspections", json=inspection_payload(location_code="ADM-U1"), headers=headers1)
+    client.post("/inspections", json=inspection_payload(location_code="ADM-U2"), headers=headers2)
+
+    response = client.get("/admin/inspections", headers=admin_headers)
+    assert response.status_code == 200
+    assert response.json()["total"] >= 2
+
+
+def test_admin_can_update_any_inspection():
+    user_headers = register_and_login()
+    admin_headers = register_and_login_as_admin()
+
+    response = client.post("/inspections", json=inspection_payload(location_code="ADM-UPD"), headers=user_headers)
+    inspection_id = response.json()["id"]
+
+    response = client.put(
+        f"/admin/inspections/{inspection_id}",
+        json={"status": "repaired"},
+        headers=admin_headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["status"] == "repaired"
+
+
+def test_admin_can_delete_any_inspection():
+    user_headers = register_and_login()
+    admin_headers = register_and_login_as_admin()
+
+    response = client.post("/inspections", json=inspection_payload(location_code="ADM-DEL"), headers=user_headers)
+    inspection_id = response.json()["id"]
+
+    response = client.delete(f"/admin/inspections/{inspection_id}", headers=admin_headers)
+    assert response.status_code == 204
+
+
+def test_regular_user_cannot_use_admin_update():
+    headers1 = register_and_login()
+    headers2 = register_and_login()
+
+    response = client.post("/inspections", json=inspection_payload(), headers=headers1)
+    inspection_id = response.json()["id"]
+
+    response = client.put(
+        f"/admin/inspections/{inspection_id}",
+        json={"status": "repaired"},
+        headers=headers2,
+    )
+    assert response.status_code == 403
+
+
+def test_regular_user_cannot_use_admin_delete():
+    headers1 = register_and_login()
+    headers2 = register_and_login()
+
+    response = client.post("/inspections", json=inspection_payload(), headers=headers1)
+    inspection_id = response.json()["id"]
+
+    response = client.delete(f"/admin/inspections/{inspection_id}", headers=headers2)
+    assert response.status_code == 403
