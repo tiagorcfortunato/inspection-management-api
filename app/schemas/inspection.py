@@ -13,8 +13,11 @@ class InspectionBase(BaseModel):
     notes: str | None = None
 
 
-class InspectionCreate(InspectionBase):
-    pass
+class InspectionCreate(BaseModel):
+    location_code: str
+    damage_type: DamageType
+    severity: SeverityLevel
+    notes: str | None = None
 
 
 class InspectionUpdate(BaseModel):

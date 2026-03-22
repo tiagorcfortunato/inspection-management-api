@@ -81,7 +81,7 @@ def create_inspection(
         location_code=inspection_data.location_code,
         damage_type=inspection_data.damage_type.value,
         severity=inspection_data.severity.value,
-        status=inspection_data.status.value,
+        status=InspectionStatus.reported.value,
         notes=inspection_data.notes,
         user_id=current_user.id,
     )
