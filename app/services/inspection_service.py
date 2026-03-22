@@ -1,7 +1,13 @@
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 
-from app.core.enums import DamageType, SeverityLevel, InspectionStatus, SortOrder
+from app.core.enums import (
+    DamageType,
+    SeverityLevel,
+    InspectionStatus,
+    SortOrder,
+    InspectionSortField,
+)
 from app.models.inspection import Inspection
 from app.models.user import User
 from app.schemas.inspection import InspectionCreate, InspectionUpdate
@@ -15,7 +21,7 @@ def get_inspections(
     damage_type: DamageType | None = None,
     limit: int = 10,
     offset: int = 0,
-    sort_by: str = "reported_at",
+    sort_by: InspectionSortField = InspectionSortField.reported_at,
     order: SortOrder = SortOrder.desc,
 ):
     query = db.query(Inspection).filter(Inspection.user_id == current_user.id)
@@ -40,7 +46,7 @@ def get_inspections(
         "location_code": Inspection.location_code,
     }
 
-    sort_column = allowed_sort_fields.get(sort_by, Inspection.reported_at)
+    sort_column = allowed_sort_fields[sort_by.value]
 
     if order == SortOrder.asc:
         query = query.order_by(asc(sort_column))
