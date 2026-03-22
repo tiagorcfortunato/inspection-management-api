@@ -21,6 +21,13 @@ class InspectionStatus(str, Enum):
     scheduled = "scheduled"
     repaired = "repaired"
 
+
 class SortOrder(str, Enum):
     asc = "asc"
     desc = "desc"
+
+
+class InspectionSortField(str, Enum):
+    reported_at = "reported_at"
+    severity = "severity"
+    status = "status"

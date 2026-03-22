@@ -2,7 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, get_current_user
-from app.core.enums import DamageType, SeverityLevel, InspectionStatus, SortOrder
+from app.core.enums import (
+    DamageType,
+    SeverityLevel,
+    InspectionStatus,
+    SortOrder,
+    InspectionSortField,
+)
 from app.models.user import User
 from app.schemas.inspection import (
     InspectionCreate,
@@ -22,7 +28,7 @@ def get_inspections(
     damage_type: DamageType | None = None,
     limit: int = Query(default=10, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    sort_by: str = "reported_at",
+    sort_by: InspectionSortField = InspectionSortField.reported_at,
     order: SortOrder = SortOrder.desc,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
