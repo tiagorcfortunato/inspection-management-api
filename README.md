@@ -189,6 +189,7 @@ The API is deployed and accessible at:
 
 - **API:** https://inspection-management-api.onrender.com
 - **Swagger docs:** https://inspection-management-api.onrender.com/docs
+- **Frontend dashboard:** https://inspection-dashboard.vercel.app
 
 ## Author
 
