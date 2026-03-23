@@ -1,5 +1,7 @@
 # Inspection Management API
 
+![CI](https://github.com/tiagorcfortunato/inspection-management-api/actions/workflows/ci.yml/badge.svg)
+
 A backend REST API for managing infrastructure inspections — road damage reports, severity classification, status tracking, filtering, pagination, and sorting.
 
 Built to demonstrate a clean, production-oriented backend architecture using FastAPI, SQLAlchemy, PostgreSQL, Alembic, Docker, and a thorough automated test suite.
