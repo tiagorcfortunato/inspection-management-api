@@ -60,10 +60,10 @@ def inspection_payload(
 
 def test_register_and_login():
     email = unique_email()
-    response = client.post("/auth/register", json={"email": email, "password": "test123"})
+    response = client.post("/auth/register", json={"email": email, "password": "Test123!"})
     assert response.status_code == 201
 
-    response = client.post("/auth/login", data={"username": email, "password": "test123"})
+    response = client.post("/auth/login", data={"username": email, "password": "Test123!"})
     assert response.status_code == 200
     assert "access_token" in response.json()
     assert response.json()["token_type"] == "bearer"
@@ -71,14 +71,14 @@ def test_register_and_login():
 
 def test_register_duplicate_email():
     email = unique_email()
-    client.post("/auth/register", json={"email": email, "password": "test123"})
-    response = client.post("/auth/register", json={"email": email, "password": "test123"})
+    client.post("/auth/register", json={"email": email, "password": "Test123!"})
+    response = client.post("/auth/register", json={"email": email, "password": "Test123!"})
     assert response.status_code == 400
 
 
 def test_login_wrong_password():
     email = unique_email()
-    client.post("/auth/register", json={"email": email, "password": "test123"})
+    client.post("/auth/register", json={"email": email, "password": "Test123!"})
     response = client.post("/auth/login", data={"username": email, "password": "wrongpassword"})
     assert response.status_code == 401
 
