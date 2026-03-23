@@ -17,7 +17,7 @@ def unique_email():
     return f"{uuid.uuid4().hex[:8]}@example.com"
 
 
-def register_and_login_as_admin(email: str = None, password: str = "test123") -> dict:
+def register_and_login_as_admin(email: str = None, password: str = "Test123!") -> dict:
     if email is None:
         email = unique_email()
     client.post("/auth/register", json={"email": email, "password": password})
@@ -33,7 +33,7 @@ def register_and_login_as_admin(email: str = None, password: str = "test123") ->
     return {"Authorization": f"Bearer {token}"}
 
 
-def register_and_login(email: str = None, password: str = "test123") -> dict:
+def register_and_login(email: str = None, password: str = "Test123!") -> dict:
     if email is None:
         email = unique_email()
     client.post("/auth/register", json={"email": email, "password": password})
