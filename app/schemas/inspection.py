@@ -13,7 +13,8 @@ class InspectionBase(BaseModel):
 
 
 class InspectionCreate(InspectionBase):
-    pass
+    damage_type: DamageType | None = None
+    severity: SeverityLevel | None = None
 
 
 class InspectionUpdate(BaseModel):
@@ -29,6 +30,8 @@ class InspectionResponse(InspectionBase):
     status: InspectionStatus
     reported_at: datetime
     user_id: int
+    ai_rationale: str | None = None
+    is_ai_processed: bool = False
 
     class Config:
         from_attributes = True
@@ -49,6 +52,8 @@ class InspectionAdminResponse(BaseModel):
     reported_at: datetime
     user_id: int
     user_email: str
+    ai_rationale: str | None = None
+    is_ai_processed: bool = False
 
     class Config:
         from_attributes = True

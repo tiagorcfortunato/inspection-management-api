@@ -73,7 +73,7 @@ notebook==7.4.1
 notebook_shim==0.2.4
 numpy==2.2.5
 overrides==7.7.0
-packaging==25.0
+packaging
 pandas==2.2.3
 pandocfilters==1.5.1
 parso==0.8.4
@@ -134,3 +134,7 @@ webencodings==0.5.1
 websocket-client==1.8.0
 wheel==0.45.1
 widgetsnbextension==4.0.14
+langchain
+langchain-openai
+langgraph
+langsmith

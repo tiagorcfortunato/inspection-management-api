@@ -1,6 +1,8 @@
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 
+from app.services.ai_service import get_ai_service
+
 from app.core.enums import (
     DamageType,
     SeverityLevel,
@@ -177,8 +179,8 @@ def create_inspection(
 ):
     db_inspection = Inspection(
         location_code=inspection_data.location_code,
-        damage_type=inspection_data.damage_type.value,
-        severity=inspection_data.severity.value,
+        damage_type=inspection_data.damage_type.value if inspection_data.damage_type else DamageType.pothole.value,
+        severity=inspection_data.severity.value if inspection_data.severity else SeverityLevel.medium.value,
         status=InspectionStatus.reported.value,
         notes=inspection_data.notes,
         user_id=current_user.id,
@@ -189,6 +191,23 @@ def create_inspection(
     db.refresh(db_inspection)
 
     return db_inspection
+
+
+async def process_inspection_with_ai(inspection_id: int, db: Session) -> None:
+    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+
+    if inspection is None or not inspection.notes:
+        return
+
+    ai_service = get_ai_service()
+    result = await ai_service.classify_inspection(inspection.notes)
+
+    inspection.damage_type = result.damage_type.value
+    inspection.severity = result.severity.value
+    inspection.ai_rationale = result.rationale
+    inspection.is_ai_processed = True
+
+    db.commit()
 
 
 def update_inspection(

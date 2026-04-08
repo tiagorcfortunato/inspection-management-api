@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, get_current_user
@@ -71,14 +71,17 @@ def get_inspection(
 )
 def create_inspection(
     inspection: InspectionCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return inspection_service.create_inspection(
-        inspection,
-        db,
-        current_user,
+    created = inspection_service.create_inspection(inspection, db, current_user)
+    background_tasks.add_task(
+        inspection_service.process_inspection_with_ai,
+        inspection_id=created.id,
+        db=db,
     )
+    return created
 
 
 @router.put("/inspections/{inspection_id}", response_model=InspectionResponse)
