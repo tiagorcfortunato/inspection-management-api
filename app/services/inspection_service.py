@@ -231,7 +231,7 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
         db.commit()
         logger.info(f"[AI] Inspection {inspection_id} updated successfully")
     except Exception as e:
-        logger.error(f"[AI] Failed for inspection {inspection_id}: {e}")
+        logger.error(f"[AI] Failed for inspection {inspection_id}: {e}", exc_info=True)
     finally:
         db.close()
 
