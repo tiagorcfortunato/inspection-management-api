@@ -135,6 +135,6 @@ websocket-client==1.8.0
 wheel==0.45.1
 widgetsnbextension==4.0.14
 langchain
-langchain-openai
+langchain-groq
 langgraph
 langsmith

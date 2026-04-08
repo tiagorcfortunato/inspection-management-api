@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ADMIN_EMAIL: str | None = None
 
-    OPENAI_API_KEY: SecretStr | None = None
+    GROQ_API_KEY: SecretStr | None = None
     LANGSMITH_TRACING: bool = False
     LANGSMITH_API_KEY: SecretStr | None = None
     LANGSMITH_PROJECT: str | None = None

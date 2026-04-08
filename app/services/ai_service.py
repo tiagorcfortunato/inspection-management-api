@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from pydantic import BaseModel
 
 from app.core.config import settings
@@ -15,9 +15,9 @@ class AIClassification(BaseModel):
 
 class AIService:
     def __init__(self) -> None:
-        self._llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            api_key=settings.OPENAI_API_KEY,
+        self._llm = ChatGroq(
+            model="llama-3.3-70b-versatile",
+            api_key=settings.GROQ_API_KEY,
         ).with_structured_output(AIClassification)
 
     async def classify_inspection(self, notes: str) -> AIClassification:
