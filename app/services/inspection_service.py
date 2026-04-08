@@ -1,5 +1,9 @@
+import logging
+
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.database import SessionLocal
 from app.services.ai_service import get_ai_service
@@ -196,12 +200,20 @@ def create_inspection(
 
 
 async def process_inspection_with_ai(inspection_id: int) -> None:
+    logger.info(f"[AI] Starting processing for inspection {inspection_id}")
     db = SessionLocal()
     try:
         inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
 
-        if inspection is None or (not inspection.notes and not inspection.image_data):
+        if inspection is None:
+            logger.warning(f"[AI] Inspection {inspection_id} not found")
             return
+
+        if not inspection.notes and not inspection.image_data:
+            logger.info(f"[AI] Inspection {inspection_id} has no notes or image, skipping")
+            return
+
+        logger.info(f"[AI] Calling AI service (notes={bool(inspection.notes)}, image={bool(inspection.image_data)})")
 
         ai_service = get_ai_service()
         result = await ai_service.classify_inspection(
@@ -209,14 +221,17 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
             image_data=inspection.image_data,
         )
 
+        logger.info(f"[AI] Result: {result.damage_type.value}/{result.severity.value}")
+
         inspection.damage_type = result.damage_type.value
         inspection.severity = result.severity.value
         inspection.ai_rationale = result.rationale
         inspection.is_ai_processed = True
 
         db.commit()
+        logger.info(f"[AI] Inspection {inspection_id} updated successfully")
     except Exception as e:
-        print(f"[AI] process_inspection_with_ai failed for id={inspection_id}: {e}")
+        logger.error(f"[AI] Failed for inspection {inspection_id}: {e}")
     finally:
         db.close()
 
