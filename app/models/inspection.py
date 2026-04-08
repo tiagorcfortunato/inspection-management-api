@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.core.enums import DamageType, SeverityLevel, InspectionStatus
@@ -18,6 +18,7 @@ class Inspection(Base):
     status = Column(String, nullable=False, default=InspectionStatus.reported.value)
     notes = Column(String, nullable=True)
 
+    image_data = Column(Text, nullable=True)
     ai_rationale = Column(String, nullable=True)
     is_ai_processed = Column(Boolean, nullable=False, default=False)
 

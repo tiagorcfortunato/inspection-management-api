@@ -184,6 +184,7 @@ def create_inspection(
         severity=inspection_data.severity.value if inspection_data.severity else SeverityLevel.medium.value,
         status=InspectionStatus.reported.value,
         notes=inspection_data.notes,
+        image_data=inspection_data.image_data,
         user_id=current_user.id,
     )
 
@@ -199,11 +200,14 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
     try:
         inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
 
-        if inspection is None or not inspection.notes:
+        if inspection is None or (not inspection.notes and not inspection.image_data):
             return
 
         ai_service = get_ai_service()
-        result = await ai_service.classify_inspection(inspection.notes)
+        result = await ai_service.classify_inspection(
+            notes=inspection.notes,
+            image_data=inspection.image_data,
+        )
 
         inspection.damage_type = result.damage_type.value
         inspection.severity = result.severity.value
