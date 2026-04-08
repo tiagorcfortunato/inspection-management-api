@@ -225,6 +225,8 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
 
         inspection.damage_type = result.damage_type.value
         inspection.severity = result.severity.value
+        inspection.ai_damage_type = result.damage_type.value
+        inspection.ai_severity = result.severity.value
         inspection.ai_rationale = result.rationale
         inspection.is_ai_processed = True
 

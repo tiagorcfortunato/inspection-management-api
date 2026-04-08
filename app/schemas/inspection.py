@@ -33,7 +33,10 @@ class InspectionResponse(InspectionBase):
     user_id: int
     image_data: str | None = None
     ai_rationale: str | None = None
+    ai_damage_type: str | None = None
+    ai_severity: str | None = None
     is_ai_processed: bool = False
+    is_ai_overridden: bool = False
 
     class Config:
         from_attributes = True
@@ -55,7 +58,10 @@ class InspectionAdminResponse(BaseModel):
     user_id: int
     user_email: str
     ai_rationale: str | None = None
+    ai_damage_type: str | None = None
+    ai_severity: str | None = None
     is_ai_processed: bool = False
+    is_ai_overridden: bool = False
 
     class Config:
         from_attributes = True
