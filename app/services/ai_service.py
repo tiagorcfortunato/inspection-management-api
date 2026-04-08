@@ -4,6 +4,7 @@ import json
 import logging
 from functools import lru_cache
 
+from groq import AsyncGroq
 from langchain_core.messages import HumanMessage
 from langchain_groq import ChatGroq
 from PIL import Image
@@ -24,7 +25,6 @@ def compress_image_base64(image_b64: str) -> str:
     img = Image.open(io.BytesIO(raw))
     img = img.convert("RGB")
 
-    # Resize if too large
     if max(img.size) > MAX_IMAGE_DIMENSION:
         img.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION))
 
@@ -48,18 +48,17 @@ CLASSIFICATION_PROMPT = (
     "Classify the damage type and severity of the road damage. "
     "Explain your reasoning in one sentence to help a human inspector trust your decision."
     "\n\nYou MUST respond with ONLY a JSON object in this exact format, no other text:\n"
-    '{{"damage_type": "<pothole|crack|rutting|surface_wear>", '
+    '{"damage_type": "<pothole|crack|rutting|surface_wear>", '
     '"severity": "<low|medium|high|critical>", '
-    '"rationale": "<one sentence explanation>"}}'
+    '"rationale": "<one sentence explanation>"}'
 )
 
 
 class AIService:
     def __init__(self) -> None:
-        self._vision_llm = ChatGroq(
-            model="llama-3.2-11b-vision-preview",
-            api_key=settings.GROQ_API_KEY,
-        )
+        # Groq SDK directly for vision (langchain-groq doesn't handle images)
+        self._groq = AsyncGroq(api_key=settings.GROQ_API_KEY)
+        # LangChain for text-only with structured output
         self._text_llm = ChatGroq(
             model="llama-3.2-11b-vision-preview",
             api_key=settings.GROQ_API_KEY,
@@ -70,37 +69,69 @@ class AIService:
         notes: str | None = None,
         image_data: str | None = None,
     ) -> AIClassification:
-        content = []
-
         if image_data:
-            compressed = compress_image_base64(image_data)
-            content.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/jpeg;base64,{compressed}"},
-            })
+            return await self._classify_with_image(notes, image_data)
+        else:
+            return await self._classify_text_only(notes)
+
+    async def _classify_with_image(
+        self,
+        notes: str | None,
+        image_data: str,
+    ) -> AIClassification:
+        compressed = compress_image_base64(image_data)
 
         text = CLASSIFICATION_PROMPT
         if notes:
             text += f"\n\nInspection notes: {notes}"
 
-        content.append({"type": "text", "text": text})
-        message = HumanMessage(content=content)
+        # Use Groq SDK directly — langchain-groq doesn't pass images properly
+        response = await self._groq.chat.completions.create(
+            model="llama-3.2-11b-vision-preview",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{compressed}",
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": text,
+                        },
+                    ],
+                }
+            ],
+            max_tokens=300,
+        )
 
-        if image_data:
-            # Vision model doesn't support structured output / tool calling
-            # with images, so we parse JSON from the raw response instead
-            response = await self._vision_llm.ainvoke([message])
-            raw = response.content.strip()
-            logger.info(f"[AI] Vision raw response: {raw}")
-            # Extract JSON from response (handle markdown code blocks)
-            if "```" in raw:
-                raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
-                raw = raw.strip()
-            return AIClassification(**json.loads(raw))
-        else:
-            return await self._text_llm.ainvoke([message])
+        raw = response.choices[0].message.content.strip()
+        logger.info(f"[AI] Vision raw response: {raw}")
+
+        # Extract JSON from response (handle markdown code blocks)
+        if "```" in raw:
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip()
+
+        return AIClassification(**json.loads(raw))
+
+    async def _classify_text_only(self, notes: str | None) -> AIClassification:
+        text = (
+            "You are a road inspection classifier. "
+            "Classify the damage type and severity of the road damage. "
+            "Explain your reasoning in one sentence to help a human inspector trust your decision."
+        )
+        if notes:
+            text += f"\n\nInspection notes: {notes}"
+
+        content = [{"type": "text", "text": text}]
+        message = HumanMessage(content=content)
+        return await self._text_llm.ainvoke([message])
 
 
 @lru_cache(maxsize=1)
