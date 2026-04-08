@@ -60,7 +60,7 @@ class AIService:
         self._groq = AsyncGroq(api_key=settings.GROQ_API_KEY.get_secret_value())
         # LangChain for text-only with structured output
         self._text_llm = ChatGroq(
-            model="llama-3.2-11b-vision-preview",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             api_key=settings.GROQ_API_KEY,
         ).with_structured_output(AIClassification)
 
@@ -87,7 +87,7 @@ class AIService:
 
         # Use Groq SDK directly — langchain-groq doesn't pass images properly
         response = await self._groq.chat.completions.create(
-            model="llama-3.2-11b-vision-preview",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "user",
