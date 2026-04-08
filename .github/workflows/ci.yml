@@ -49,4 +49,5 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/taskdb
           SECRET_KEY: ci-test-secret-key
           RATE_LIMIT_ENABLED: "false"
+          GROQ_API_KEY: ci-test-groq-key
         run: pytest --tb=short -q

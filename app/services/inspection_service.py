@@ -211,6 +211,8 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
         inspection.is_ai_processed = True
 
         db.commit()
+    except Exception:
+        pass
     finally:
         db.close()
 
