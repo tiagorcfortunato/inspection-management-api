@@ -103,6 +103,41 @@ def update_inspection(
     return updated_inspection
 
 
+@router.post("/inspections/{inspection_id}/retry-ai")
+async def retry_ai(
+    inspection_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Debug endpoint: retry AI processing and return the error if it fails."""
+    import traceback
+    from app.models.inspection import Inspection
+    from app.services.ai_service import get_ai_service
+
+    inspection = db.query(Inspection).filter(
+        Inspection.id == inspection_id,
+        Inspection.user_id == current_user.id,
+    ).first()
+
+    if inspection is None:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    try:
+        ai_service = get_ai_service()
+        result = await ai_service.classify_inspection(
+            notes=inspection.notes,
+            image_data=inspection.image_data,
+        )
+        inspection.damage_type = result.damage_type.value
+        inspection.severity = result.severity.value
+        inspection.ai_rationale = result.rationale
+        inspection.is_ai_processed = True
+        db.commit()
+        return {"status": "success", "result": result.model_dump()}
+    except Exception as e:
+        return {"status": "error", "error": str(e), "traceback": traceback.format_exc()}
+
+
 @router.delete("/inspections/{inspection_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_inspection(
     inspection_id: int,
