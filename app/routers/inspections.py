@@ -79,7 +79,6 @@ def create_inspection(
     background_tasks.add_task(
         inspection_service.process_inspection_with_ai,
         inspection_id=created.id,
-        db=db,
     )
     return created
 

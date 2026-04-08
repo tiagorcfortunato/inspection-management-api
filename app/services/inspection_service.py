@@ -1,6 +1,7 @@
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 
+from app.database import SessionLocal
 from app.services.ai_service import get_ai_service
 
 from app.core.enums import (
@@ -193,21 +194,25 @@ def create_inspection(
     return db_inspection
 
 
-async def process_inspection_with_ai(inspection_id: int, db: Session) -> None:
-    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+async def process_inspection_with_ai(inspection_id: int) -> None:
+    db = SessionLocal()
+    try:
+        inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
 
-    if inspection is None or not inspection.notes:
-        return
+        if inspection is None or not inspection.notes:
+            return
 
-    ai_service = get_ai_service()
-    result = await ai_service.classify_inspection(inspection.notes)
+        ai_service = get_ai_service()
+        result = await ai_service.classify_inspection(inspection.notes)
 
-    inspection.damage_type = result.damage_type.value
-    inspection.severity = result.severity.value
-    inspection.ai_rationale = result.rationale
-    inspection.is_ai_processed = True
+        inspection.damage_type = result.damage_type.value
+        inspection.severity = result.severity.value
+        inspection.ai_rationale = result.rationale
+        inspection.is_ai_processed = True
 
-    db.commit()
+        db.commit()
+    finally:
+        db.close()
 
 
 def update_inspection(
