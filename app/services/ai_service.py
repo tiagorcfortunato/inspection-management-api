@@ -57,7 +57,7 @@ CLASSIFICATION_PROMPT = (
 class AIService:
     def __init__(self) -> None:
         # Groq SDK directly for vision (langchain-groq doesn't handle images)
-        self._groq = AsyncGroq(api_key=settings.GROQ_API_KEY)
+        self._groq = AsyncGroq(api_key=settings.GROQ_API_KEY.get_secret_value())
         # LangChain for text-only with structured output
         self._text_llm = ChatGroq(
             model="llama-3.2-11b-vision-preview",
