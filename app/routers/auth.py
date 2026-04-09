@@ -1,3 +1,13 @@
+"""
+app.routers.auth — Authentication Endpoints
+
+Handles user registration and login. Both endpoints are rate-limited
+(5/min for register, 10/min for login) to prevent brute-force attacks.
+
+Login uses OAuth2PasswordRequestForm (form data, not JSON) to comply
+with the OAuth2 spec that FastAPI's Swagger UI expects.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session

@@ -1,3 +1,18 @@
+"""
+app.schemas.inspection — Inspection Request/Response Schemas
+
+Defines the API contract for inspection endpoints:
+- InspectionCreate: accepts optional damage_type/severity (AI fills them in)
+  and optional image_data (base64) for vision classification
+- InspectionResponse: includes AI fields (ai_rationale, ai_damage_type,
+  ai_severity, is_ai_processed, is_ai_overridden) for transparency
+- InspectionAdminResponse: adds user_email for cross-user admin views
+
+Key design decision: InspectionCreate makes damage_type and severity
+optional (overriding the base class) because when an image is uploaded,
+the AI will classify them — the user doesn't need to guess.
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel

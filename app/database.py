@@ -1,3 +1,13 @@
+"""
+app.database — SQLAlchemy Database Configuration
+
+Sets up the database engine, session factory, and declarative base.
+Handles the Render PostgreSQL URL format quirk (postgres:// → postgresql://).
+
+SessionLocal is used both by FastAPI's dependency injection (via get_db)
+and by background tasks that need their own independent DB session.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 

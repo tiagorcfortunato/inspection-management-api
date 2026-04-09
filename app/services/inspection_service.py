@@ -1,3 +1,20 @@
+"""
+app.services.inspection_service — Inspection Business Logic
+
+Core CRUD operations, filtering, sorting, pagination, and the async
+AI classification pipeline. Key functions:
+
+- get_inspections / get_all_inspections: filtered, sorted, paginated queries
+- create_inspection: creates the DB record (AI runs separately)
+- process_inspection_with_ai: async background task that sends the
+  inspection to the AI service and writes results back to the DB.
+  Uses its own SessionLocal since the request session is closed by then.
+
+Key design decision: AI stores its classification in ai_damage_type and
+ai_severity alongside the user-editable fields, enabling override detection
+without losing the original AI decision.
+"""
+
 import logging
 
 from sqlalchemy import asc, desc

@@ -1,3 +1,15 @@
+"""
+app.main — FastAPI Application Entry Point
+
+Creates and configures the FastAPI application instance:
+- CORS middleware (origins from environment config)
+- Rate limiting via SlowAPI
+- Router registration (auth, inspections, users, admin)
+- Health check and root redirect to Swagger docs
+
+This is the file that Uvicorn loads: `uvicorn app.main:app`
+"""
+
 import logging
 
 logging.basicConfig(level=logging.INFO)

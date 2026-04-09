@@ -1,3 +1,13 @@
+"""
+app.schemas.auth — Authentication Request/Response Schemas
+
+Pydantic models for auth endpoints:
+- UserRegister: validates email format and enforces password complexity
+  (min 8 chars, uppercase, lowercase, digit, special character)
+- UserLogin: email + password for login requests
+- TokenResponse: JWT access token returned on successful login
+"""
+
 import re
 
 from pydantic import BaseModel, EmailStr, field_validator

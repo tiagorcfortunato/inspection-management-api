@@ -1,3 +1,11 @@
+"""
+app.routers.users — User Profile Endpoint
+
+Provides the GET /users/me endpoint that returns the current
+authenticated user's profile (id, email, role). Used by the
+frontend to determine admin vs regular user UI.
+"""
+
 from fastapi import APIRouter, Depends
 
 from app.core.deps import get_current_user

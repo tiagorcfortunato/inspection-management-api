@@ -1,3 +1,11 @@
+"""
+app.models.user — User ORM Model
+
+Represents an application user in PostgreSQL. Supports role-based access
+control with 'user' and 'admin' roles. Passwords are stored as bcrypt
+hashes (never plaintext). Has a one-to-many relationship with Inspection.
+"""
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 

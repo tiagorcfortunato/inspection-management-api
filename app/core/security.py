@@ -1,3 +1,15 @@
+"""
+app.core.security — Password Hashing and JWT Token Management
+
+Provides three security primitives:
+- hash_password: bcrypt hashing for secure password storage
+- verify_password: bcrypt comparison for login authentication
+- create_access_token: JWT generation with configurable expiration
+
+Uses python-jose for JWT encoding and passlib for bcrypt hashing.
+Token expiration and algorithm are configured via app.core.config.
+"""
+
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt

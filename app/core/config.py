@@ -1,3 +1,11 @@
+"""
+app.core.config — Environment-Based Application Settings
+
+Uses Pydantic Settings to load configuration from environment variables
+and .env files. Sensitive values (API keys) use SecretStr to prevent
+accidental logging. Provides typed, validated access to all config values.
+"""
+
 from __future__ import annotations
 
 from pydantic import SecretStr

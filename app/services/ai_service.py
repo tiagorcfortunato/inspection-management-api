@@ -1,3 +1,21 @@
+"""
+app.services.ai_service — Multimodal AI Classification Service
+
+Classifies road damage from images and/or text notes using Groq's
+LLaMA 4 Scout vision model. Two code paths exist by necessity:
+
+- Vision (image): Uses Groq SDK directly (AsyncGroq) because
+  LangChain's ChatGroq wrapper doesn't forward image content properly.
+  Prompts the model for JSON output and parses it manually.
+
+- Text-only (notes): Uses LangChain with .with_structured_output()
+  for type-safe classification via function calling.
+
+Images are compressed (max 1024px, JPEG 75%) before sending to stay
+within API limits. The AIService is LRU-cached as a singleton to avoid
+re-initializing the LLM client on every request.
+"""
+
 import base64
 import io
 import json

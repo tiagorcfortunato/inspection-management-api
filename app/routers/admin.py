@@ -1,3 +1,14 @@
+"""
+app.routers.admin — Admin-Only Inspection Endpoints
+
+Provides cross-user inspection management for admins. Unlike the user
+endpoints, these are not scoped to the current user — admins can list,
+update, and delete any inspection across all users.
+
+All endpoints require the admin role (enforced via require_admin dependency).
+The admin list response includes user_email for accountability.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 

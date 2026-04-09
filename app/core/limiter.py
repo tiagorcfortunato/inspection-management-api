@@ -1,3 +1,11 @@
+"""
+app.core.limiter — Rate Limiting Configuration
+
+Configures SlowAPI rate limiter using the client's IP address.
+Applied to auth endpoints to prevent brute-force attacks.
+Can be disabled via RATE_LIMIT_ENABLED=false for testing.
+"""
+
 import os
 
 from slowapi import Limiter

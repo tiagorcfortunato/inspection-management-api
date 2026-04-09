@@ -1,3 +1,15 @@
+"""
+app.services.auth_service — Authentication Business Logic
+
+Handles user registration and login:
+- register_user: creates a new user with bcrypt-hashed password
+- login_user: verifies credentials and returns a JWT token
+
+Admin role assignment: if the user's email matches ADMIN_EMAIL from
+environment config, their role is promoted to admin on login. This
+avoids needing a separate admin creation flow.
+"""
+
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.auth import UserRegister

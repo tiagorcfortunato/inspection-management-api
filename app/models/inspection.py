@@ -1,3 +1,15 @@
+"""
+app.models.inspection — Inspection ORM Model
+
+Represents a road damage inspection report in PostgreSQL. Stores both
+the user-editable fields (damage_type, severity) and the original AI
+classification (ai_damage_type, ai_severity) to enable override tracking.
+
+Key design decision: is_ai_overridden is a SQLAlchemy hybrid_property,
+computed on read by comparing current values against AI values. This
+avoids storing a redundant boolean that could become stale.
+"""
+
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text

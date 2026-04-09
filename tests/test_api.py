@@ -1,3 +1,20 @@
+"""
+tests.test_api — API Integration Tests
+
+31 tests covering the full API surface using FastAPI's TestClient:
+- Authentication: register, login, duplicate email, wrong password
+- CRUD: create, read, update, delete inspections
+- Data isolation: users cannot access other users' inspections
+- Validation: invalid enum values, missing required fields
+- Filtering: by severity, damage_type, status
+- Pagination: limit and offset behavior
+- Sorting: ascending and descending by severity
+- Admin: role enforcement, cross-user access, admin CRUD
+
+Tests use a real database (not mocks) to catch ORM and migration issues.
+Each test creates its own user to ensure isolation.
+"""
+
 import os
 import sys
 import uuid

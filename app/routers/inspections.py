@@ -1,3 +1,14 @@
+"""
+app.routers.inspections — User Inspection Endpoints
+
+CRUD operations for inspections, scoped to the authenticated user.
+On POST, a BackgroundTask is dispatched to classify the inspection
+via AI — the response returns immediately without waiting for AI.
+
+All endpoints require JWT authentication via get_current_user.
+Users can only access their own inspections (enforced at the service layer).
+"""
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, Query, status
 from sqlalchemy.orm import Session
 

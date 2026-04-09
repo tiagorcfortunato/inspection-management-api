@@ -1,3 +1,14 @@
+"""
+app.core.enums — Domain Enumerations
+
+Defines all constrained value types used in the API. These enums extend
+both str and Enum so they serialize naturally to/from JSON and are used
+consistently across schemas, models, and API query parameters.
+
+Domain enums: DamageType, SeverityLevel, InspectionStatus, UserRole
+Query enums:  SortOrder, InspectionSortField
+"""
+
 from enum import Enum
 
 

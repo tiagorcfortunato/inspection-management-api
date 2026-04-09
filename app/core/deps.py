@@ -1,3 +1,15 @@
+"""
+app.core.deps — FastAPI Dependency Injection
+
+Provides injectable dependencies used across all routers:
+- get_db: yields a SQLAlchemy session per request, auto-closed after use
+- get_current_user: decodes JWT token and returns the authenticated User
+- require_admin: enforces admin role, returns 403 if not authorized
+
+These are injected via FastAPI's Depends() system, keeping auth and
+DB session management out of the route handler code.
+"""
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
