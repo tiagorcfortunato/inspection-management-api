@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     ADMIN_EMAIL: str | None = None
+    ALLOWED_ORIGINS: list[str] = ["https://inspection-dashboard.vercel.app"]
 
     GROQ_API_KEY: SecretStr | None = None
     LANGSMITH_TRACING: bool = False

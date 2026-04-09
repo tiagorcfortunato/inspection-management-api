@@ -8,9 +8,8 @@ from fastapi.responses import RedirectResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from app.core.config import settings
 from app.core.limiter import limiter
-from app.database import Base, engine
-from app.models import user, inspection
 from app.routers import auth, inspections, users, admin
 
 
@@ -24,7 +23,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://inspection-dashboard.vercel.app"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, require_admin
 from app.core.enums import DamageType, SeverityLevel, InspectionStatus, SortOrder, InspectionSortField
 from app.models.user import User
 from app.schemas.inspection import InspectionUpdate, InspectionAdminListResponse, InspectionResponse
-from app.services.inspection_service import get_all_inspections, admin_update_inspection, admin_delete_inspection
+from app.services.inspection_service import get_all_inspections, admin_update_inspection, get_inspection_by_id_admin
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -15,8 +15,8 @@ def list_all_inspections(
     severity: SeverityLevel | None = None,
     status: InspectionStatus | None = None,
     damage_type: DamageType | None = None,
-    limit: int = 10,
-    offset: int = 0,
+    limit: int = Query(default=10, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
     sort_by: InspectionSortField = InspectionSortField.reported_at,
     order: SortOrder = SortOrder.desc,
     db: Session = Depends(get_db),
@@ -55,7 +55,7 @@ def delete_any_inspection(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    inspection = admin_delete_inspection(inspection_id, db)
+    inspection = get_inspection_by_id_admin(inspection_id, db)
 
     if inspection is None:
         raise HTTPException(status_code=404, detail="Inspection not found")

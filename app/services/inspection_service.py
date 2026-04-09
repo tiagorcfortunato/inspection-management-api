@@ -161,9 +161,8 @@ def admin_update_inspection(
     return inspection
 
 
-def admin_delete_inspection(inspection_id: int, db: Session):
-    inspection = db.query(Inspection).filter(Inspection.id == inspection_id).first()
-    return inspection
+def get_inspection_by_id_admin(inspection_id: int, db: Session):
+    return db.query(Inspection).filter(Inspection.id == inspection_id).first()
 
 
 def get_inspection_by_id(inspection_id: int, db: Session, current_user: User):
@@ -233,6 +232,7 @@ async def process_inspection_with_ai(inspection_id: int) -> None:
         db.commit()
         logger.info(f"[AI] Inspection {inspection_id} updated successfully")
     except Exception as e:
+        db.rollback()
         logger.error(f"[AI] Failed for inspection {inspection_id}: {e}", exc_info=True)
     finally:
         db.close()

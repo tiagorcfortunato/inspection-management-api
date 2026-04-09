@@ -17,12 +17,17 @@ logger = logging.getLogger(__name__)
 
 MAX_IMAGE_DIMENSION = 1024
 JPEG_QUALITY = 75
+MAX_VISION_TOKENS = 300
 
 
 def compress_image_base64(image_b64: str) -> str:
     """Compress and resize image to stay within Groq API limits."""
-    raw = base64.b64decode(image_b64)
-    img = Image.open(io.BytesIO(raw))
+    try:
+        raw = base64.b64decode(image_b64)
+        img = Image.open(io.BytesIO(raw))
+    except Exception as e:
+        raise ValueError(f"Invalid image data: {e}") from e
+
     img = img.convert("RGB")
 
     if max(img.size) > MAX_IMAGE_DIMENSION:
@@ -56,6 +61,9 @@ CLASSIFICATION_PROMPT = (
 
 class AIService:
     def __init__(self) -> None:
+        if settings.GROQ_API_KEY is None:
+            raise RuntimeError("GROQ_API_KEY is not configured")
+
         # Groq SDK directly for vision (langchain-groq doesn't handle images)
         self._groq = AsyncGroq(api_key=settings.GROQ_API_KEY.get_secret_value())
         # LangChain for text-only with structured output
@@ -105,7 +113,7 @@ class AIService:
                     ],
                 }
             ],
-            max_tokens=300,
+            max_tokens=MAX_VISION_TOKENS,
         )
 
         raw = response.choices[0].message.content.strip()
