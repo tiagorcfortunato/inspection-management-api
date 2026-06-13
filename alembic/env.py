@@ -27,9 +27,12 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
     connectable = create_engine(
         DATABASE_URL,
         poolclass=pool.NullPool,
+        connect_args=connect_args,
     )
 
     with connectable.connect() as connection:
