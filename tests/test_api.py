@@ -19,6 +19,11 @@ import os
 import sys
 import uuid
 
+os.environ.setdefault("DATABASE_URL", "sqlite:////tmp/inspection_demo.db")
+os.environ.setdefault("SECRET_KEY", "smoke-test-secret")
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+os.environ.setdefault("GROQ_API_KEY", "ci-test-groq-key")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from fastapi.testclient import TestClient
